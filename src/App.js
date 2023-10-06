@@ -1,20 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./App.css";
 import MoviesList from "./components/MoviesList";
+import AddMovie from "./components/AddMovie";
 
 function App() {
   const [movies, setMovies] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  async function fetchMoviesHandler() {
+  //http request
+  const fetchMoviesHandler = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://swapi.py4e.com/api/films/");
-
+      const response = await fetch("https://swapi.py4e.com/api/films");
       if (!response.ok) {
-        throw new Error("Something went wrong");
+        throw new Error("Something went wrong!");
       }
 
       const data = await response.json();
@@ -32,11 +33,22 @@ function App() {
       setError(error.message);
     }
     setIsLoading(false);
+  }, []);
+
+  //to start initially
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+
+  //Add movie function
+  function addMovieHandler(movie) {
+    console.log(movie);
   }
 
+  //conditional content
   let content = <p>Found no movies.</p>;
 
-  if (!isLoading && movies.length > 0) {
+  if (movies.length > 0) {
     content = <MoviesList movies={movies} />;
   }
 
@@ -50,6 +62,9 @@ function App() {
 
   return (
     <>
+      <section>
+        <AddMovie onAddMovie={addMovieHandler} />
+      </section>
       <section>
         <button onClick={fetchMoviesHandler}>Fetch Movies</button>
       </section>
