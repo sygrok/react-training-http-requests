@@ -13,22 +13,28 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://swapi.py4e.com/api/films");
+      const response = await fetch(
+        "https://react-http-587ad-default-rtdb.europe-west1.firebasedatabase.app/movies.json/"
+      );
+
       if (!response.ok) {
         throw new Error("Something went wrong!");
       }
 
       const data = await response.json();
 
-      const transformedData = data.results.map((x) => {
-        return {
-          id: x.episode_id,
-          title: x.title,
-          openingText: x.opening_crawl,
-          releaseDate: x.release_date,
-        };
-      });
-      setMovies(transformedData);
+      const loadedData = [];
+
+      for (const key in data) {
+        loadedData.push({
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].release_date,
+        });
+      }
+
+      setMovies(loadedData);
     } catch (error) {
       setError(error.message);
     }
@@ -41,8 +47,17 @@ function App() {
   }, [fetchMoviesHandler]);
 
   //Add movie function
-  function addMovieHandler(movie) {
-    console.log(movie);
+  async function addMovieHandler(movie) {
+    const response = await fetch(
+      "https://react-http-587ad-default-rtdb.europe-west1.firebasedatabase.app/movies.json/",
+      {
+        method: "POST", //default is 'GET'
+        body: JSON.stringify(movie),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = await response.json;
+    console.log(data);
   }
 
   //conditional content
